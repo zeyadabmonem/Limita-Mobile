@@ -13,9 +13,11 @@ String failureMessage(Failure failure) {
     TimeoutFailure() => AppStrings.requestTimeout,
     UnauthorizedFailure() => AppStrings.unauthorized,
     ValidationFailure(:final message) => message,
-    ServerFailure(:final message) => message.isNotEmpty ? message : AppStrings.serverError,
+    ServerFailure(:final message) =>
+      message.isNotEmpty ? message : AppStrings.serverError,
     CacheFailure() => AppStrings.genericError,
     UnknownFailure() => AppStrings.genericError,
+    _ => AppStrings.genericError,
   };
 }
 
@@ -39,7 +41,8 @@ class AppErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.error),
+            const Icon(Icons.error_outline_rounded,
+                size: 48, color: AppColors.error),
             const SizedBox(height: 12),
             Text(
               failureMessage(failure),

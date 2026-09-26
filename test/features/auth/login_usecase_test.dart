@@ -27,9 +27,10 @@ void main() {
     refreshToken: 'refresh-token',
   );
 
-  test('delegates to AuthRepository.login with the given credentials', () async {
-    when(() => repository.login(email: email, password: password))
-        .thenAnswer((_) async => const Right<Failure, AuthSessionEntity>(session));
+  test('delegates to AuthRepository.login with the given credentials',
+      () async {
+    when(() => repository.login(email: email, password: password)).thenAnswer(
+        (_) async => const Right<Failure, AuthSessionEntity>(session));
 
     final ApiResult<AuthSessionEntity> result =
         useCase(const LoginParams(email: email, password: password));

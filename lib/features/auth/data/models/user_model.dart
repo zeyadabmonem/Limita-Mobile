@@ -1,3 +1,4 @@
+import '../../../../core/error/exceptions.dart';
 import '../../domain/entities/user_entity.dart';
 
 /// Data-layer DTO for the user object returned by the API.
@@ -32,14 +33,18 @@ class AuthResponseModel {
     this.refreshToken,
   });
 
-  factory AuthResponseModel.fromJson(Map<String, dynamic> json) {
+  factory AuthResponseModel.fromJson(Map<String, dynamic> json,
+      {required String email}) {
     final Map<String, dynamic>? userJson =
-        json['user'] as Map<String, dynamic>? ?? json['data'] as Map<String, dynamic>?;
+        json['user'] as Map<String, dynamic>?;
+    final token = json['token']?.toString() ?? '';
+    if (token.isEmpty) {
+      throw const ServerException('The sign-in response was invalid.');
+    }
 
     return AuthResponseModel(
-      user: UserModel.fromJson(userJson ?? json),
-      accessToken: (json['accessToken'] ?? json['token'] ?? '').toString(),
-      refreshToken: json['refreshToken']?.toString(),
+      user: UserModel.fromJson({...?userJson, ...json, 'email': email}),
+      accessToken: token,
     );
   }
 
@@ -51,5 +56,22 @@ class AuthResponseModel {
         user: user,
         accessToken: accessToken,
         refreshToken: refreshToken,
+      );
+}
+
+/// DTO returned by `POST /api/v1/auth/register`. Registration deliberately
+/// does not return a JWT, so it must not be treated as a logged-in session.
+class RegisteredUserModel extends UserModel {
+  const RegisteredUserModel({
+    required super.id,
+    required super.email,
+    required super.fullName,
+  });
+
+  factory RegisteredUserModel.fromJson(Map<String, dynamic> json) =>
+      RegisteredUserModel(
+        id: json['id'].toString(),
+        email: json['email'].toString(),
+        fullName: json['fullName'].toString(),
       );
 }

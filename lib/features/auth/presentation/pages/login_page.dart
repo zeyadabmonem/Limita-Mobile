@@ -34,6 +34,7 @@ class _LoginViewState extends State<_LoginView> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
 
   @override
   void dispose() {
@@ -73,31 +74,44 @@ class _LoginViewState extends State<_LoginView> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 48),
-                    Text(
-                      AppStrings.appName,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.displayLarge,
-                    ),
+                    Text(AppStrings.welcomeBack,
+                        style: Theme.of(context).textTheme.headlineLarge),
+                    const SizedBox(height: 8),
+                    Text('Sign in to continue to ${AppStrings.appName}.',
+                        style: Theme.of(context).textTheme.bodyMedium),
                     const SizedBox(height: 40),
                     AuthTextField(
                       controller: _emailController,
                       label: AppStrings.email,
                       keyboardType: TextInputType.emailAddress,
-                      validator: (value) =>
-                          (value == null || value.isEmpty) ? 'Email is required' : null,
+                      autofillHints: const [AutofillHints.email],
+                      textInputAction: TextInputAction.next,
+                      validator: _emailValidator,
                     ),
                     const SizedBox(height: 16),
                     AuthTextField(
                       controller: _passwordController,
                       label: AppStrings.password,
-                      obscureText: true,
-                      validator: (value) =>
-                          (value == null || value.isEmpty) ? 'Password is required' : null,
+                      obscureText: !_isPasswordVisible,
+                      autofillHints: const [AutofillHints.password],
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) => _submit(),
+                      suffixIcon: IconButton(
+                        tooltip: _isPasswordVisible
+                            ? 'Hide password'
+                            : 'Show password',
+                        icon: Icon(_isPasswordVisible
+                            ? Icons.visibility_off
+                            : Icons.visibility),
+                        onPressed: () => setState(
+                            () => _isPasswordVisible = !_isPasswordVisible),
+                      ),
+                      validator: _passwordValidator,
                     ),
-                    if (state is ViewError) ...[
+                    if (state.failureOrNull case final failure?) ...[
                       const SizedBox(height: 16),
                       Text(
-                        failureMessage(state.failure),
+                        failureMessage(failure),
                         style: const TextStyle(color: Colors.red),
                         textAlign: TextAlign.center,
                       ),
@@ -108,6 +122,28 @@ class _LoginViewState extends State<_LoginView> {
                       isLoading: isLoading,
                       onPressed: isLoading ? null : _submit,
                     ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: isLoading
+                            ? null
+                            : () => context.goNamed(RouteNames.forgotPassword),
+                        child: const Text(AppStrings.forgotPassword),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(AppStrings.noAccount),
+                        TextButton(
+                          onPressed: isLoading
+                              ? null
+                              : () => context.goNamed(RouteNames.register),
+                          child: const Text(AppStrings.signUp),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -116,5 +152,20 @@ class _LoginViewState extends State<_LoginView> {
         ),
       ),
     );
+  }
+
+  String? _emailValidator(String? value) {
+    final email = value?.trim() ?? '';
+    if (email.isEmpty) return 'Email is required.';
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
+      return 'Enter a valid email address.';
+    }
+    if (email.length > 256) return 'Email must be at most 256 characters.';
+    return null;
+  }
+
+  String? _passwordValidator(String? value) {
+    if ((value ?? '').isEmpty) return 'Password is required.';
+    return null;
   }
 }

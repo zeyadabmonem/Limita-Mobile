@@ -8,6 +8,10 @@ class AuthTextField extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType,
     this.validator,
+    this.textInputAction,
+    this.onFieldSubmitted,
+    this.suffixIcon,
+    this.autofillHints,
   });
 
   final TextEditingController controller;
@@ -15,6 +19,10 @@ class AuthTextField extends StatelessWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onFieldSubmitted;
+  final Widget? suffixIcon;
+  final Iterable<String>? autofillHints;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +31,10 @@ class AuthTextField extends StatelessWidget {
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,
-      decoration: InputDecoration(labelText: label),
+      textInputAction: textInputAction,
+      onFieldSubmitted: onFieldSubmitted,
+      autofillHints: autofillHints,
+      decoration: InputDecoration(labelText: label, suffixIcon: suffixIcon),
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import '../storage/token_storage.dart';
@@ -23,6 +25,16 @@ class AppRouter {
         builder: (context, state) => const SplashPage(),
       ),
       GoRoute(
+        path: RoutePaths.register,
+        name: RouteNames.register,
+        builder: (context, state) => const RegisterPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.forgotPassword,
+        name: RouteNames.forgotPassword,
+        builder: (context, state) => const ForgotPasswordPage(),
+      ),
+      GoRoute(
         path: RoutePaths.login,
         name: RouteNames.login,
         builder: (context, state) => const LoginPage(),
@@ -36,13 +48,15 @@ class AppRouter {
     redirect: (context, state) async {
       final bool isLoggedIn = await _tokenStorage.hasValidSession();
       final bool goingToSplash = state.matchedLocation == RoutePaths.splash;
-      final bool goingToLogin = state.matchedLocation == RoutePaths.login;
+      final bool goingToAuth = state.matchedLocation == RoutePaths.login ||
+          state.matchedLocation == RoutePaths.register ||
+          state.matchedLocation == RoutePaths.forgotPassword;
 
       // Let the splash screen own the very first redirect decision.
       if (goingToSplash) return null;
 
-      if (!isLoggedIn && !goingToLogin) return RoutePaths.login;
-      if (isLoggedIn && goingToLogin) return RoutePaths.home;
+      if (!isLoggedIn && !goingToAuth) return RoutePaths.login;
+      if (isLoggedIn && goingToAuth) return RoutePaths.home;
 
       return null;
     },

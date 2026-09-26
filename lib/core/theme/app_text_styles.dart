@@ -7,7 +7,8 @@ import '../constants/app_colors.dart';
 abstract class AppTextStyles {
   const AppTextStyles._();
 
-  static TextStyle get _base => GoogleFonts.poppins(color: AppColors.textPrimary);
+  static TextStyle get _base =>
+      GoogleFonts.poppins(color: AppColors.textPrimary);
 
   static TextStyle get displayLarge =>
       _base.copyWith(fontSize: 32, fontWeight: FontWeight.w700, height: 1.2);

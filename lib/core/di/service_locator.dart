@@ -4,7 +4,9 @@ import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/login_usecase.dart';
+import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/auth/presentation/bloc/register_bloc.dart';
 import '../network/api_client.dart';
 import '../router/app_router.dart';
 import '../storage/secure_storage_service.dart';
@@ -44,5 +46,8 @@ Future<void> setupServiceLocator() async {
     () => AuthRepositoryImpl(remoteDataSource: sl(), tokenStorage: sl()),
   );
   sl.registerLazySingleton<LoginUseCase>(() => LoginUseCase(sl()));
-  sl.registerFactory<AuthBloc>(() => AuthBloc(loginUseCase: sl(), tokenStorage: sl()));
+  sl.registerLazySingleton<RegisterUseCase>(() => RegisterUseCase(sl()));
+  sl.registerFactory<AuthBloc>(
+      () => AuthBloc(loginUseCase: sl(), tokenStorage: sl()));
+  sl.registerFactory<RegisterBloc>(() => RegisterBloc(sl()));
 }

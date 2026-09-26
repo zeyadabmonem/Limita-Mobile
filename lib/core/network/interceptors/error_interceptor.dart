@@ -26,13 +26,15 @@ class ErrorInterceptor extends Interceptor {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
+      case DioExceptionType.transformTimeout:
         return const TimeoutException();
 
       case DioExceptionType.connectionError:
         return const NetworkException();
 
       case DioExceptionType.badCertificate:
-        return const NetworkException('Secure connection could not be established.');
+        return const NetworkException(
+            'Secure connection could not be established.');
 
       case DioExceptionType.cancel:
         return const NetworkException('Request was cancelled.');
@@ -49,8 +51,8 @@ class ErrorInterceptor extends Interceptor {
     final int? statusCode = err.response?.statusCode;
     final dynamic data = err.response?.data;
 
-    final String message = _extractMessage(data) ??
-        'Request failed with status code $statusCode.';
+    final String message =
+        _extractMessage(data) ?? 'Request failed with status code $statusCode.';
 
     if (statusCode == 401) {
       onUnauthorized?.call();
@@ -70,12 +72,14 @@ class ErrorInterceptor extends Interceptor {
       }
     }
 
-    return ServerException(message, statusCode: statusCode, fieldErrors: fieldErrors);
+    return ServerException(message,
+        statusCode: statusCode, fieldErrors: fieldErrors);
   }
 
   String? _extractMessage(dynamic data) {
     if (data is Map<String, dynamic>) {
-      final dynamic message = data['message'] ?? data['title'] ?? data['detail'];
+      final dynamic message =
+          data['message'] ?? data['title'] ?? data['detail'];
       if (message is String && message.isNotEmpty) return message;
     }
     if (data is String && data.isNotEmpty) return data;

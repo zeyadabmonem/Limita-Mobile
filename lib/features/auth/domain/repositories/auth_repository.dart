@@ -10,5 +10,12 @@ abstract class AuthRepository {
     required String password,
   });
 
+  ApiResult<UserEntity> register({
+    required String fullName,
+    required String email,
+    required String phoneNumber,
+    required String password,
+  });
+
   ApiResult<void> logout();
 }

@@ -24,7 +24,8 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      final response = await _remoteDataSource.login(email: email, password: password);
+      final response =
+          await _remoteDataSource.login(email: email, password: password);
 
       await _tokenStorage.saveTokens(
         accessToken: response.accessToken,
@@ -32,8 +33,8 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
       return Right(response.toEntity());
-    } on UnauthorizedException catch (e) {
-      return Left(UnauthorizedFailure(e.message));
+    } on UnauthorizedException {
+      return const Left(UnauthorizedFailure('Invalid email or password.'));
     } on ServerException catch (e) {
       return Left(
         e.statusCode == 422 || e.statusCode == 400
@@ -50,9 +51,40 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  ApiResult<UserEntity> register({
+    required String fullName,
+    required String email,
+    required String phoneNumber,
+    required String password,
+  }) async {
+    try {
+      final user = await _remoteDataSource.register(
+        fullName: fullName,
+        email: email,
+        phoneNumber: phoneNumber,
+        password: password,
+      );
+      return Right(user);
+    } on UnauthorizedException catch (e) {
+      return Left(UnauthorizedFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(
+        e.statusCode == 422 || e.statusCode == 400
+            ? ValidationFailure(e.message, fieldErrors: e.fieldErrors)
+            : ServerFailure(e.message, statusCode: e.statusCode),
+      );
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on TimeoutException catch (e) {
+      return Left(TimeoutFailure(e.message));
+    } catch (_) {
+      return const Left(UnknownFailure('Unable to create your account.'));
+    }
+  }
+
+  @override
   ApiResult<void> logout() async {
     try {
-      await _remoteDataSource.logout();
       await _tokenStorage.clear();
       return const Right(null);
     } on Exception catch (_) {

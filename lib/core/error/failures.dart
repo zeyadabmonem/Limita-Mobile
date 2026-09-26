@@ -36,7 +36,8 @@ class ServerFailure extends Failure {
 
 /// 401 / invalid or expired token.
 class UnauthorizedFailure extends Failure {
-  const UnauthorizedFailure([super.message = 'Session expired. Please sign in again.']);
+  const UnauthorizedFailure(
+      [super.message = 'Session expired. Please sign in again.']);
 }
 
 /// 422 / 400 style validation errors, optionally with field-level detail.
